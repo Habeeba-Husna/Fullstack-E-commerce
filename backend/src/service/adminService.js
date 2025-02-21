@@ -1,60 +1,72 @@
 import Order from "../models/orderModel.js";
 import User from "../models/userModel.js";
 import CustomError from "../utils/customError.js";
+import isAdmin from "../middlewares/isAdmin.js";
 
-//user Block
+ 
+//get all user-non-admin users 
 
-  export const userBlockService = async (id) => {
-    const userDetails = await User.findById(id);
-    if (!userDetails) {
-      throw new CustomError("user not found", 400);
-    }
-    userDetails.isBlock = !userDetails.isBlock;      //if user found block aanengil unblock aakkum illel vice versa
-    await userDetails.save();
-    return userDetails;
-  };
-
-  //get all user-non-admin users 
-
-export const getAllUserServices = async (limit, skip) => {
-  const usersList = await User
-    .find({ isAdmin: { $ne: true } })
-    .skip(skip)
-    .limit(limit);
-  const totalUsers = await User.countDocuments({ isAdmin: { $ne: true } });
-  return { usersList, totalUsers };
+export const getAllUserService = async (limits, skips) => {
+  const usersList = await User.find({ isAdmin: { $ne: true } })
+  .skip(skips)
+  .limit(limits);
+// console.log(usersList,'users')
+const totalUsers = await User.countDocuments({ isAdmin: { $ne: true } });
+// console.log(totalUsers,'total')
+return { usersList, totalUsers };
 };
 
 //specific user
-export const singleUserServices = async (id) => {
+export const singleUserService = async (id) => {
   const users = await User.findById(id);
-  if (!users)
-     throw CustomError("user not found", 400);
-  else
-    return users;
+  if (!users) {
+    throw new CustomError("user not found", 400);
+  }
+  return users;
 };
 
-//order list
-export const getAllOrderServices = async (id) => {
-  const orderdata = await Order.find();
-  return orderdata
+
+
+//user Block
+
+export const userBlockService = async (id) => {
+  const userDetails = await User.findById(id);
+  if (!userDetails) {
+    throw new CustomError("user not found", 400);
+  }
+  userDetails.isBlock = !userDetails.isBlock;
+  userDetails.save();
+  return userDetails;
 };
+ 
 
 //get total revenue
-export const getGrossProfitServices = async () => {
-  const result = await Order.aggregate([{$group:{_id:null,totalRevenue:{$sum:"$total"}}}])
+export const totalRevenueService = async () => {
+  const result = await Order.aggregate([
+    { $group: { _id: null, totalRevenue: { $sum: "$total" } } },
+  ]);
   return result;
 };
 
-// get total products purchased
+// get order
 
-export const getTotalProductsPurchasedServices = async () => {
-  const result = await Order.aggregate([
-    { $unwind: "$items" },                                          //Unwind the products array to count each product separately
-    { $group: { _id: null, totalProductsPurchased: { $sum: "$items.quantity" } } }
-  ]);
-  return result;
-  // return result.length > 0 ? result : [{ totalProductsPurchased: 0 }];
+export const showOrderServices = async (userId, page = 1, limit = 10) => {
+  const skip = (page - 1) * limit; 
+  const total = await Order.countDocuments({ user: userId });
+  const orders = await Order.find({ user: userId })
+    .populate({ path: 'items.productId', model: 'product' })
+    .skip(skip)
+    .limit(limit);
+
+  return {
+    orders,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 
