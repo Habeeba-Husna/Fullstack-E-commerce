@@ -1,7 +1,7 @@
 import asyncHandler from '../middlewares/asyncHandler.js';
 import { STATUS } from '../utils/constants.js';
 import { addOrderService,showOrderService,verifyPaymentService} from '../service/orderService.js'
-
+// import Order from '../models/orderModel.js';
 //add order
 
 export const addOrder = asyncHandler(async (req, res) => {
@@ -24,6 +24,8 @@ export const addOrder = asyncHandler(async (req, res) => {
   });
 });
 
+//verifyPayment
+
 export const verifyPayment =asyncHandler(async (req, res) => {
   const { paymentId, orderId } = req.body;
   try {
@@ -44,6 +46,8 @@ export const verifyPayment =asyncHandler(async (req, res) => {
   }
 });
 
+//showOrders
+
 export const showOrders = asyncHandler(async (req, res) => {
   const userId = req.user._id;
   const { orders } = await showOrderService(userId);
@@ -53,52 +57,19 @@ export const showOrders = asyncHandler(async (req, res) => {
   res.status(200).json({ status: STATUS.SUCCESS, message, orders });
 });
 
-//   const userId = req.user._id;
-  
-//   const { name, address, paymentMethod, total } = req.body;
-  
-//   console.log("Order Data Sent:", { name, address, paymentMethod, total });
- 
-//   const { order, razorpayId } = await addOrderService(
-//     name,
-//     address,
-//     paymentMethod,
-//     total,
-//     userId
-//   );
-//   res.status(200).json({
-//     status: STATUS.SUCCESS,
-//     message: "order success",
-//     order,
-//     razorpayOrderId: razorpayId,
-//   });
-// });
+//removeOrder
 
-// //verify payment
+// export const removeOrder = async (req, res) => {
+//   try {
+//     const orderId = req.params.id;
+//     const deletedOrder = await Order.findByIdAndDelete(orderId);
 
-// export const verifyPayment = async (req, res) => {
-//   const { paymentId, orderId } = req.body;
+//     if (!deletedOrder) {
+//       return res.status(404).json({ message: "Order not found" });
+//     }
 
-//   const isPaymentVerified = await verifyPaymentService(paymentId, orderId);
-
-//   if (isPaymentVerified) {
-//     res.status(200).json({
-//       message: "Payment verified successfully",
-//     });
-//   } else {
-//     throw new CustomError("Payment verification failed", 400);
+//     res.json({ message: "Order removed successfully" });
+//   } catch (error) {
+//     res.status(500).json({ message: "Error in removing order" });
 //   }
 // };
-
-// //get all orders
-
-// export const showOrders = asyncHandler(async (req, res) => {
-//   const userId = req.user._id;
-//   const { orders } = await showOrderService(userId);
-//   const message = orders.length
-//     ? "orders retrived successfully"
-//     : "no orders found";
-//   res.status(200).json({ status: STATUS.SUCCESS, message, orders });
-// });
-
-

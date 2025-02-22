@@ -3,7 +3,8 @@ import User from "../models/userModel.js";
 import CustomError from "../utils/customError.js";
 import { generateAccessToken, verifyToken } from '../utils/jwt.js';
 
-//service of new user
+//new user
+
 export const userRegisterServices = async (data) => {
     const userExists = await User.findOne({ email: data.email });
     if (userExists) {
@@ -38,13 +39,17 @@ export const userLoginServices=async(email,password)=>{
   }
   return userData
 }
+
+//refreshAccessTokenService
+
 export const refreshAccessTokenService=async(refreshToken)=>{
 
-  //refresh token exists
   if(!refreshToken){
       throw new CustomError("Refresh token missing",401)
   }
+
   //verify refresh token
+
   const decoded=verifyToken(refreshToken,process.env.JWT_REFRESH_SECRET)
   if(!decoded){
       throw new CustomError("Invalid or expired refresh token", 403)
@@ -58,10 +63,12 @@ export const refreshAccessTokenService=async(refreshToken)=>{
 }
 
 //logout service
+
 export const logoutUserService = () => {
   return true;
 };
 
+//getuser
 
 export const getUserDetails = async (id) => {
   const user = await User.findById(id).select('username role');

@@ -3,7 +3,6 @@ import User from "../models/userModel.js";
 import CustomError from "../utils/customError.js";
 import isAdmin from "../middlewares/isAdmin.js";
 
- 
 //get all user-non-admin users 
 
 export const getAllUserService = async (limits, skips) => {
@@ -24,8 +23,6 @@ export const singleUserService = async (id) => {
   }
   return users;
 };
-
-
 
 //user Block
 
